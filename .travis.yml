@@ -1,0 +1,34 @@
+dist: bionic
+os: linux
+language: c
+
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "DaXqflhdkfpF9ElyIgBt2Tvuqx2OuqKFW+jk1imjWX8GS+tlSd1owIW5eebo4hkPb+eT8AssrGZNaHj1JA1sCqixwLAoDppiOJ1pjQpc+21yRxmevASKZrmTDqpC086mReOv5wFrLZ6t9ySf6CBVwGMO3yL0aIk83fbBQ/UhwtvUHt7R+BNlxWVVIqpYm7KSQvpphXSpBIftbFn9i7gxHIbccbkH8o5qnFmv/i1Z2u+RjE3R7rDex9q5TJDcqZaidHJ9InN/kXTF35zUvxIdaj//Rhnr2iTKjcjE1clRiecFRywuEFzFROsQNQ9ruj845wRGmcT9CJ3PDpK9jxJR5bnIP4ZI7SBvlt8YGEKOWyonWMeXpbfbwr5+pKlBYi3VTBYnZuY3ygzvl2KEGMY/ASisB+rVhjMMOnTDvM8nxQDvc0ed84lgKowY11F2vJJIRqNpkAUI487QGGoM6/GoS6I4wMxQ3M4UVGR8cLLGk74fgIyVZl8EozjLweMBk8sUJ5J96VXeUUnw+/DwU6/bBtq3P6sa4hEr1voI3g/ZIig00W3zlYw+MudKfYT6oQ2cFWNg9Jl9FQQEXPlTKjbwrrMHafNrGHACNw6gLc4RNX4oAWGwFIBf0QOkzAeoxUtNMfTIrtv75nV22Qrfz0fdNlIdVQeMGL8lXbyGLexebyM="
+
+
+script:
+  - cat "${TRAVIS_BUILD_DIR}/cov-int/scm_log.txt"
+
+
+addons:
+  apt:
+    packages:
+      - autoconf-archive   
+      - autotools-dev
+      - bison
+      - flex
+      - libconfuse-dev
+      - help2man
+      - uthash-dev
+  coverity_scan:
+    project:
+      name: "cgzones/selint"
+      description: "Build submitted via Travis CI"
+    notification_email: cgzones@googlemail.com
+    build_command_prepend: "./autogen.sh && ./configure --without-check && make clean"
+    build_command: "make"
+    branch_pattern: coverity_scan
