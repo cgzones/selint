@@ -30,4 +30,15 @@ enum selint_error {
 	SELINT_IO_ERROR
 };
 
+#if defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION) || defined(__AFL_COMPILER)
+#define SELINT_FUZZING
+#include <stdio.h>
+#define SELINT_FUZZING_ABORT do { \
+				fprintf(stderr, "abort in file %s, function %s, line %d\n", __FILE__, __func__, __LINE__); \
+				abort(); \
+			    } while(0)
+#else
+#define SELINT_FUZZING_ABORT
+#endif
+
 #endif

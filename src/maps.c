@@ -79,6 +79,7 @@ static struct hash_elem *look_up_hash_elem(const char *name, enum decl_flavor fl
 		HASH_FIND(hh_perm, perm_map, name, strlen(name), decl);
 		break;
 	default:
+		SELINT_FUZZING_ABORT;
 		decl = NULL;
 	}
 
@@ -135,6 +136,7 @@ void insert_into_decl_map(const char *name, const char *module_name,
 			free(decl->key);
 			free(decl->val);
 			free(decl);
+			SELINT_FUZZING_ABORT;
 			return;
 		}
 	}       //TODO: else report error?
@@ -267,6 +269,7 @@ unsigned int decl_map_count(enum decl_flavor flavor)
 	case DECL_PERM:
 		return HASH_CNT(hh_perm, perm_map);
 	default:
+		SELINT_FUZZING_ABORT;
 		return 0;
 	}
 }

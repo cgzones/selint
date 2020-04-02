@@ -559,6 +559,9 @@ static enum selint_error end_block(struct policy_node **cur,
 {
 
 	if ((*cur)->parent == NULL || (*cur)->parent->flavor != block_type) {
+		if (block_type != NODE_INTERFACE_DEF) {
+			SELINT_FUZZING_ABORT;
+		}
 		return SELINT_NOT_IN_BLOCK;
 	}
 
@@ -646,6 +649,7 @@ enum selint_error begin_interface_def(struct policy_node **cur,
 		insert_template_into_template_map(name);
 		break;
 	default:
+		SELINT_FUZZING_ABORT;
 		return SELINT_BAD_ARG;
 	}
 
@@ -738,6 +742,7 @@ enum selint_error end_m4_argument(struct policy_node **cur)
 enum selint_error save_command(struct policy_node *cur, const char *comm)
 {
 	if (cur == NULL) {
+		SELINT_FUZZING_ABORT;
 		return SELINT_BAD_ARG;
 	}
 	if (comm == NULL) {
@@ -768,6 +773,7 @@ static enum node_flavor attr_to_node_flavor(enum attr_flavor flavor)
 		return NODE_ROLE_ATTRIBUTE;
 	default:
 		// Should never happen
+		SELINT_FUZZING_ABORT;
 		return NODE_ERROR;
 	}
 }

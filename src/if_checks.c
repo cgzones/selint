@@ -61,6 +61,7 @@ static int compare_declaration_flavors(enum decl_flavor a, enum decl_flavor b, c
 	}
 
 	// should never happen
+	SELINT_FUZZING_ABORT;
 	return 0;
 }
 

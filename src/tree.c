@@ -27,6 +27,7 @@ enum selint_error insert_policy_node_child(struct policy_node *parent,
 {
 
 	if (parent == NULL) {
+		SELINT_FUZZING_ABORT;
 		return SELINT_BAD_ARG;
 	}
 
@@ -68,6 +69,7 @@ enum selint_error insert_policy_node_next(struct policy_node *prev,
 {
 
 	if (prev == NULL) {
+		SELINT_FUZZING_ABORT;
 		return SELINT_BAD_ARG;
 	}
 
@@ -139,6 +141,7 @@ const char *decl_flavor_to_string(enum decl_flavor flavor)
 	case DECL_BOOL:
 		return "boolean";
 	default:
+		SELINT_FUZZING_ABORT;
 		return "unknown";
 	}
 }

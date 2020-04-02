@@ -384,7 +384,9 @@ enum selint_error run_all_checks(struct checks *ck, enum file_flavor flavor,
 
 		char *suffix_ptr = strrchr(data.mod_name, '.');
 
-		*suffix_ptr = '\0';
+		if (suffix_ptr) {
+			*suffix_ptr = '\0';
+		}
 
 		enum selint_error res =
 			run_checks_on_one_file(ck, &data, file->file->ast);

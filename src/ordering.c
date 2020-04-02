@@ -167,6 +167,7 @@ enum selint_error add_section_info(struct section_data *sections,
 const char *get_section(const struct policy_node *node)
 {
 	if (!node) {
+		SELINT_FUZZING_ABORT;
 		return NULL; //Error
 	}
 
@@ -176,7 +177,9 @@ const char *get_section(const struct policy_node *node)
 	case NODE_FC_FILE:
 	case NODE_SPT_FILE:
 	case NODE_AV_FILE:
-		return NULL; // Should never happen
+		// Should never happen
+		SELINT_FUZZING_ABORT;
+		return NULL;
 	case NODE_HEADER:
 		return SECTION_NON_ORDERED; // Guaranteed at top by grammar
 	case NODE_AV_RULE:
@@ -282,6 +285,7 @@ const char *get_section(const struct policy_node *node)
 		return SECTION_NON_ORDERED;
 	default:
 		// Should never happen
+		SELINT_FUZZING_ABORT;
 		return NULL;
 	}
 }
@@ -299,6 +303,7 @@ float get_avg_line_by_name(const char *section_name, const struct section_data *
 	while (0 != strcmp(sections->section_name, section_name)) {
 		sections = sections->next;
 		if (!sections) {
+			SELINT_FUZZING_ABORT;
 			return -1; //Error
 		}
 	}
@@ -791,6 +796,7 @@ char *get_ordering_reason(struct ordering_metadata *order_data, unsigned int ind
 		distance++;
 		if ((distance > index) &&
 		    (index + distance > order_data->order_node_len)) {
+			SELINT_FUZZING_ABORT;
 			return NULL; // Error
 		}
 	}
@@ -813,11 +819,13 @@ char *get_ordering_reason(struct ordering_metadata *order_data, unsigned int ind
 
 	switch (-reason) {
 	case ORDER_EQUAL:
+		SELINT_FUZZING_ABORT;
 		return NULL; // Error
 	case ORDER_SECTION:
 		node_section = get_section(this_node);
 		other_section = get_section(other_node);
 		if (!node_section || !other_section) {
+			SELINT_FUZZING_ABORT;
 			return NULL; // Error
 		}
 		if (0 == strcmp(SECTION_DECLARATION, node_section)) {
@@ -836,6 +844,7 @@ char *get_ordering_reason(struct ordering_metadata *order_data, unsigned int ind
 
 		int r = asprintf(&followup_str, "  (This node is in the section for %s rules and the other is in the section for %s rules.)", node_section, other_section);
 		if (r == -1) {
+			SELINT_FUZZING_ABORT;
 			return NULL; //ERROR
 		}
 		break;
@@ -880,9 +889,11 @@ char *get_ordering_reason(struct ordering_metadata *order_data, unsigned int ind
 			reason_str = "that is in an optional block";
 			break;
 		case LSS_UNKNOWN:
+			SELINT_FUZZING_ABORT;
 			return NULL; //Error
 		default:
 			//Shouldn't happen
+			SELINT_FUZZING_ABORT;
 			return NULL;
 		}
 		if (other_lss == LSS_KERNEL || other_lss == LSS_SYSTEM || other_lss == LSS_OTHER) {
@@ -907,9 +918,11 @@ char *get_ordering_reason(struct ordering_metadata *order_data, unsigned int ind
 		}
 		break;
 	case ORDERING_ERROR:
+		SELINT_FUZZING_ABORT;
 		return NULL;
 	default:
 		//Shouldn't happen
+		SELINT_FUZZING_ABORT;
 		return NULL;
 	}
 	size_t str_len = strlen(reason_str) +
@@ -937,6 +950,7 @@ char *get_ordering_reason(struct ordering_metadata *order_data, unsigned int ind
 	if (written < 0) {
 		free(followup_str);
 		free(ret);
+		SELINT_FUZZING_ABORT;
 		return NULL;
 	}
 

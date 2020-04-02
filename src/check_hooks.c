@@ -114,6 +114,7 @@ void display_check_result(const struct check_result *res, const struct check_dat
 
 struct check_result *alloc_internal_error(const char *string)
 {
+	SELINT_FUZZING_ABORT;
 	return make_check_result('F', F_ID_INTERNAL, "%s", string);
 }
 
@@ -235,6 +236,7 @@ static int comp_check_nodes(const void *n1, const void *n2)
 			return 1;
 		}
 	default:
+		SELINT_FUZZING_ABORT;
 		return 0; //Should never happen, but no way to return an error
 	}
 }

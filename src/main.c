@@ -403,6 +403,21 @@ int main(int argc, char **argv)
 	char *access_vector_path = NULL;
 
 	while (file) {
+
+#ifdef SELINT_FUZZING
+
+		file_list_push_back(te_files,
+			                    make_policy_file(file->fts_path,
+			                                     NULL));
+		file_list_push_back(if_files,
+			                    make_policy_file(file->fts_path,
+			                                     NULL));
+		file_list_push_back(fc_files,
+			                    make_policy_file(file->fts_path,
+			                                     NULL));
+
+#else /* SELINT_FUZZING */
+
 		const char *suffix = (file->fts_pathlen > 3) ? (file->fts_path + file->fts_pathlen - 3) : NULL;
 
 		if (suffix && !strcmp(suffix, ".te")) {
@@ -459,6 +474,8 @@ int main(int argc, char **argv)
 				fts_set(ftsp, file, FTS_SKIP);
 			}
 		}
+
+#endif /* SELINT_FUZZING */
 
 		file = fts_read(ftsp);
 	}
