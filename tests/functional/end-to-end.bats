@@ -382,7 +382,7 @@ test_parse_error_impl() {
 	[ "$status" -eq 0 ]
 
 	echo "Part III"
-	run ${SELINT_PATH} -F -s -c configs/default.conf policies/misc/disable_require_decl.*
+	run ${SELINT_PATH} -F -s -c configs/default.conf -d C-009 policies/misc/disable_require_decl.*
 	[ "$status" -eq 0 ]
 }
 

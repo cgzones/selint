@@ -294,6 +294,7 @@ const char *get_section(const struct policy_node *node)
 	case NODE_FC_ENTRY:
 		return NULL;           // fc files only
 	case NODE_COMMENT:
+	case NODE_DOCUMENTATION:
 	case NODE_EMPTY:
 	case NODE_SEMICOLON:
 	case NODE_ERROR:

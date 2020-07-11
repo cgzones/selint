@@ -159,6 +159,12 @@ struct checks *register_checks(char level,
 			add_check(NODE_TUNABLE_POLICY, ck, "C-008",
 			          check_foreign_cond_id);
 		}
+		if (CHECK_ENABLED("C-009")) {
+			add_check(NODE_INTERFACE_DEF, ck, "C-009",
+			          check_interface_documentation);
+			add_check(NODE_TEMP_DEF, ck, "C-009",
+			          check_interface_documentation);
+		}
 		// FALLTHRU
 	case 'S':
 		if (CHECK_ENABLED("S-001")) {

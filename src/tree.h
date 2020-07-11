@@ -58,6 +58,7 @@ enum node_flavor {
 	NODE_PERMISSIVE,
 	NODE_FC_ENTRY,
 	NODE_COMMENT,
+	NODE_DOCUMENTATION,
 	NODE_EMPTY,
 	NODE_SEMICOLON,         // A semicolon that is not needed to close the previous line
 	NODE_CLEANUP,           // Called after each file parsing is complete so that checks

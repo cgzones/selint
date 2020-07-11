@@ -33,6 +33,7 @@ enum convention_ids {
 	C_ID_UNORDERED_REQ  = 6,
 	C_ID_SELF           = 7,
 	C_ID_FOREIGN_CONDID = 8,
+	C_ID_IF_DOCU        = 9,
 	C_END
 };
 

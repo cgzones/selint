@@ -59,6 +59,19 @@ struct check_result *check_unordered_declaration_in_require(const struct
                                                             *node);
 
 /*********************************************
+* Check for irregular interfaces and templates documentation
+* Called on NODE_INTERFACE_DEF and NODE_TEMP_DEF nodes.
+* data - metadata about the file
+* node - the node to check
+* returns NULL if passed or check_result for issue C-009
+*********************************************/
+struct check_result *check_interface_documentation(const struct
+                                                   check_data *data,
+                                                   const struct
+                                                   policy_node
+                                                   *node);
+
+/*********************************************
 * Check that interfaces do not call templates
 * Called on NODE_IF_CALL nodes
 * data - metadata about the file

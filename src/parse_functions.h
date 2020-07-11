@@ -57,6 +57,18 @@ char *get_current_module_name(void);
 enum selint_error insert_comment(struct policy_node **cur, unsigned int lineno);
 
 /**********************************
+* insert_documentation
+* Add a documentation node at the next node in the tree, allocating all memory for it.
+* cur (in, out) - The current spot in the tree.  Will be updated to point to
+*	the newly allocated declaration node
+* content (in, sink) - The textual content of the line
+* lineno (in) - The line number
+*
+* Returns - SELINT error code
+**********************************/
+enum selint_error insert_documentation(struct policy_node **cur, char *content, unsigned int lineno);
+
+/**********************************
 * insert_declaration
 * Add a declaration node at the next node in the tree, allocating all memory for it
 * cur (in, out) - The current spot in the tree.  Will be updated to point to

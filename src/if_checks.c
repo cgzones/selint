@@ -175,6 +175,171 @@ struct check_result *check_unordered_declaration_in_require(const struct
 	return NULL;
 }
 
+struct check_result *check_interface_documentation(__attribute__((unused)) const struct
+                                                   check_data *data,
+                                                   const struct
+                                                   policy_node *node)
+{
+	const char *def_name = node->data.str;
+	const char *def_type = node->flavor == NODE_INTERFACE_DEF ? "interface" : "template";
+	const struct policy_node *ancestor = node->prev;
+
+	// the line before an interface is an empty comment
+	// TODO: duplicates C-004
+	if (!ancestor || ancestor->flavor != NODE_COMMENT) {
+		return make_check_result('C', C_ID_IF_DOCU,
+					 "No comment line before %s definition for %s",
+					 def_type,
+					 def_name);
+	}
+
+	ancestor = ancestor->prev;
+	if (!ancestor || ancestor->flavor != NODE_DOCUMENTATION) {
+		return make_check_result('C', C_ID_IF_DOCU,
+					 "No documentation before %s definition for %s",
+					 def_type,
+					 def_name);
+	}
+
+	while (ancestor->prev && ancestor->prev->flavor == NODE_DOCUMENTATION && ancestor->prev->lineno == ancestor->lineno - 1) {
+		ancestor = ancestor->prev;
+	}
+
+	// I.
+	// 40 * #
+	if (ancestor->flavor != NODE_DOCUMENTATION || 0 != strcmp(ancestor->data.str, "########################################\n")) {
+		return make_check_result('C', C_ID_IF_DOCU,
+					 "Documentation I(%u): does not start with 40 '#' for %s definition %s",
+					 ancestor->lineno,
+					 def_type,
+					 def_name);
+	}
+	ancestor = ancestor->next;
+
+	// II.
+	// <summary>
+	if (ancestor->flavor != NODE_DOCUMENTATION || 0 != strcmp(ancestor->data.str, "## <summary>\n")) {
+		return make_check_result('C', C_ID_IF_DOCU,
+					 "Documentation II(%u): no or irregular summary for %s definition %s",
+					 ancestor->lineno,
+					 def_type,
+					 def_name);
+	}
+	ancestor = ancestor->next;
+
+	// III.
+	// summary intented by tab
+	while (ancestor->flavor == NODE_DOCUMENTATION && 0 != strcmp(ancestor->data.str, "## </summary>\n")) {
+		if (0 != strncmp(ancestor->data.str, "##\t", 3)) {
+			return make_check_result('C', C_ID_IF_DOCU,
+						 "Documentation III(%u): summary not intended by tab for %s definition %s",
+						 ancestor->lineno,
+						 def_type,
+						 def_name);
+		}
+		ancestor = ancestor->next;
+	}
+
+	// IV:
+	// </summary>
+	if (ancestor->flavor != NODE_DOCUMENTATION) {
+		return make_check_result('C', C_ID_IF_DOCU,
+					 "Documentation IV(%u): summary not regular closed for %s definition %s",
+					 ancestor->lineno,
+					 def_type,
+					 def_name);
+	}
+	ancestor = ancestor->next;
+
+	// V. + VI.
+	// optional desc block
+	if (ancestor->flavor == NODE_DOCUMENTATION && 0 == strcmp(ancestor->data.str, "## <desc>\n")) {
+		ancestor = ancestor->next;
+		while (ancestor->flavor == NODE_DOCUMENTATION && 0 != strcmp(ancestor->data.str, "## </desc>\n")) {
+			if (0 != strncmp(ancestor->data.str, "##\t", 3)) {
+				return make_check_result('C', C_ID_IF_DOCU,
+							 "Documentation V(%u): description not intended by tab for %s definition %s",
+							 ancestor->lineno,
+							 def_type,
+							 def_name);
+			}
+			ancestor = ancestor->next;
+		}
+
+		if (ancestor->flavor != NODE_DOCUMENTATION) {
+			return make_check_result('C', C_ID_IF_DOCU,
+						 "Documentation VI(%u): description not regular closed for %s definition %s",
+						 ancestor->lineno,
+						 def_type,
+						 def_name);
+		}
+		ancestor = ancestor->next;
+	}
+
+	// VII.
+	// parameter documentation
+	do {
+		if (ancestor->flavor != NODE_DOCUMENTATION || 0 != strncmp(ancestor->data.str, "## <param name=\"", strlen("## <param name=\""))) {
+			return make_check_result('C', C_ID_IF_DOCU,
+						"Documentation VII(%u): no or irregular parameter documentation for %s definition %s",
+						ancestor->lineno,
+						def_type,
+						def_name);
+		}
+		ancestor = ancestor->next;
+
+		if (ancestor->flavor != NODE_DOCUMENTATION || 0 != strcmp(ancestor->data.str, "##\t<summary>\n")) {
+			return make_check_result('C', C_ID_IF_DOCU,
+						 "Documentation VII(%u): no or irregular parameter summary for %s definition %s",
+						 ancestor->lineno,
+						 def_type,
+						 def_name);
+		}
+
+		while (ancestor->flavor == NODE_DOCUMENTATION && 0 != strcmp(ancestor->data.str, "##\t</summary>\n")) {
+			if (0 != strncmp(ancestor->data.str, "##\t", 3)) {
+				return make_check_result('C', C_ID_IF_DOCU,
+							 "Documentation VII(%u): summary not intended by tab for %s definition %s",
+							 ancestor->lineno,
+							 def_type,
+							 def_name);
+			}
+			ancestor = ancestor->next;
+		}
+
+		if (ancestor->flavor != NODE_DOCUMENTATION) {
+			return make_check_result('C', C_ID_IF_DOCU,
+						 "Documentation VII(%u): parameter summary not regular closed for %s definition %s",
+						 ancestor->lineno,
+						 def_type,
+						 def_name);
+		}
+		ancestor = ancestor->next;
+
+		while (ancestor->flavor == NODE_DOCUMENTATION && 0 != strcmp(ancestor->data.str, "## </param>\n")) {
+			if (0 != strncmp(ancestor->data.str, "##\t", 3)) {
+				return make_check_result('C', C_ID_IF_DOCU,
+							 "Documentation V(%u): parameter documentation not intended by tab for %s definition %s",
+							 ancestor->lineno,
+							 def_type,
+							 def_name);
+			}
+			ancestor = ancestor->next;
+		}
+
+		if (ancestor->flavor != NODE_DOCUMENTATION) {
+			return make_check_result('C', C_ID_IF_DOCU,
+						 "Documentation VI(%u): parameter documentation not regular closed for %s definition %s",
+						 ancestor->lineno,
+						 def_type,
+						 def_name);
+		}
+		ancestor = ancestor->next;
+	} while (ancestor->flavor == NODE_DOCUMENTATION);
+
+	return NULL;
+}
+
 struct check_result *check_if_calls_template(const struct
                                              check_data *data,
                                              const struct

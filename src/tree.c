@@ -280,6 +280,7 @@ struct string_list *get_names_in_node(const struct policy_node *node)
 	   NODE_GEN_REQ,
 	   NODE_FC_ENTRY,
 	   NODE_COMMENT,
+	   NODE_DOCUMENTATION,
 	   NODE_EMPTY,
 	   NODE_SEMICOLON,
 	   NODE_CLEANUP,

@@ -82,6 +82,20 @@ enum selint_error insert_comment(struct policy_node **cur, unsigned int lineno)
 	return SELINT_SUCCESS;
 }
 
+enum selint_error insert_documentation(struct policy_node **cur, char *content, unsigned int lineno)
+{
+	union node_data data;
+
+	data.str = content;
+	enum selint_error ret = insert_policy_node_next(*cur, NODE_DOCUMENTATION, data, lineno);
+	if (ret != SELINT_SUCCESS) {
+		return ret;
+	}
+	*cur = (*cur)->next;
+
+	return SELINT_SUCCESS;
+}
+
 enum selint_error insert_declaration(struct policy_node **cur,
                                      enum decl_flavor flavor,
                                      const char *name,

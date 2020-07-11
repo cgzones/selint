@@ -117,14 +117,15 @@ START_TEST (test_parse_basic_if) {
 
 	current = current->next;
 
-	ck_assert_int_eq(NODE_COMMENT, current->flavor);
+	ck_assert_int_eq(NODE_DOCUMENTATION, current->flavor);
+	ck_assert_str_eq("## <summary> Some interfaces for test </summary>\n", current->data.str);
 	ck_assert_ptr_nonnull(current->next);
 
 	current = current->next;
 
 	ck_assert_int_eq(NODE_COMMENT, current->flavor);
+	ck_assert_ptr_null(current->data.str);
 	ck_assert_ptr_nonnull(current->next);
-
 
 	current = current->next;
 
