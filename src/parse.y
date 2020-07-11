@@ -87,15 +87,10 @@
 %token <string> NUMBER;
 %token <string> QUOTED_STRING;
 %token <string> VERSION_NO;
+%token <string> DOCUMENTATION;
 %token <string> SELINT_COMMAND;
 
-%destructor { free($$); } STRING
-%destructor { free($$); } NUM_STRING
-%destructor { free($$); } IPV4
-%destructor { free($$); } IPV6
-%destructor { free($$); } NUMBER
-%destructor { free($$); } QUOTED_STRING
-%destructor { free($$); } VERSION_NO
+%destructor { free($$); } STRING NUM_STRING IPV4 IPV6 NUMBER QUOTED_STRING VERSION_NO DOCUMENTATION SELINT_COMMAND
 
 %token UNKNOWN_TOKEN;
 %token POLICY_MODULE;
@@ -234,6 +229,8 @@ comments:
 
 comment:
 	COMMENT	{ insert_comment(&cur, @$.first_line); }
+	|
+	DOCUMENTATION { insert_documentation(&cur, $1, @$.first_line); }
 	;
 
 
@@ -334,7 +331,9 @@ bare_line:
 	|
 	SEMICOLON { insert_semicolon(&cur, @$.first_line); }
 	|
-	COMMENT
+	COMMENT                        // TODO: save but avoid ordering problems
+	|
+	DOCUMENTATION { free($1); }    // TODO: save but avoid ordering problems
 	// Would like to do error recovery, but the best strategy seems to be to skip
 	// to next newline, which lex doesn't give us right now.
 	// Also, we would need to know in yyerror whether the error was recoverable
@@ -615,7 +614,7 @@ require_bare:
 	if_or_ifn OPEN_PAREN BACKTICK STRING SINGLE_QUOTE COMMA { begin_ifdef(&cur, @$.first_line); }
 	require_lines CLOSE_PAREN { end_ifdef(&cur); free($4); }
 	|
-	COMMENT
+	comment
 	;
 
 m4_simple_macro:
@@ -928,7 +927,7 @@ if_lines:
 if_line:
 	interface_def
 	|
-	COMMENT { insert_comment(&cur, @$.first_line); }
+	comment
 	;
 
 interface_def:
@@ -973,7 +972,7 @@ spt_lines:
 spt_line:
 	support_def
 	|
-	COMMENT
+	comment
 	;
 
 support_def:

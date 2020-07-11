@@ -146,6 +146,12 @@ struct checks *register_checks(char level,
 			add_check(NODE_XAV_RULE, ck, "C-007",
 			          check_no_self);
 		}
+		if (CHECK_ENABLED("C-008")) {
+			add_check(NODE_INTERFACE_DEF, ck, "C-008",
+			          check_interface_documentation);
+			add_check(NODE_TEMP_DEF, ck, "C-008",
+			          check_interface_documentation);
+		}
 		// FALLTHRU
 	case 'S':
 		if (CHECK_ENABLED("S-001")) {

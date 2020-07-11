@@ -360,13 +360,16 @@ test_parse_error_impl() {
 	echo $output
 	[ "$count" -eq 0 ]
 
+	echo "Part I"
 	run ${SELINT_PATH} -F -s -c configs/default.conf policies/misc/disable_multiple*
 	[ "$status" -eq 0 ]
 
+	echo "Part II"
 	run ${SELINT_PATH} -F -s -c configs/default.conf -d S-008 policies/misc/disable_require_start.*
 	[ "$status" -eq 0 ]
 
-	run ${SELINT_PATH} -F -s -c configs/default.conf policies/misc/disable_require_decl.*
+	echo "Part III"
+	run ${SELINT_PATH} -F -s -c configs/default.conf -d C-008 policies/misc/disable_require_decl.*
 	[ "$status" -eq 0 ]
 }
 

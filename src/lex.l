@@ -176,6 +176,7 @@ userdebug_or_eng { return USERDEBUG_OR_ENG; }
 \!\= { return NOT_EQUAL; }
 \! { return NOT; }
 \=\= { return EQUAL; }
+^\#\#.*\n { yylval->string = strdup(yytext); return DOCUMENTATION; }
 \#selint\-disable\:\ ?[CSWEF]\-[0-9]+(\,\ ?[CSWEF]\-[0-9]+)*$ { yylval->string = strdup(yytext); return SELINT_COMMAND; }
 \#.*$ { return COMMENT; }
 dnl(.*)?$ ; /* skip m4 comment lines */
