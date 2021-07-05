@@ -82,11 +82,8 @@
 
 %token <string> STRING;
 %token <string> NUM_STRING;
-%token <string> IPV4;
-%token <string> IPV6;
 %token <string> NUMBER;
 %token <string> QUOTED_STRING;
-%token <string> VERSION_NO;
 %token <string> SELINT_COMMAND;
 
 %token UNKNOWN_TOKEN;
@@ -167,6 +164,9 @@
 %left EQUAL;
 %left NOT_EQUAL;
 %token COMMENT;
+%token IPV4;
+%token IPV6;
+%token VERSION_NO;
 
 %type<sl> string_list
 %type<sl> comma_string_list
@@ -254,7 +254,7 @@ header:
 	;
 
 header_version:
-	VERSION_NO { free($1); }
+	VERSION_NO
 	|
 	NUMBER { free($1); }
 	;
@@ -815,9 +815,9 @@ nodecon:
 	;
 
 two_ip_addrs:
-	IPV4 IPV4 { free($1); free($2); }
+	IPV4 IPV4
 	|
-	IPV6 IPV6 { free($1); free($2); }
+	IPV6 IPV6
 	;
 
 fs_use:

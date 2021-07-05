@@ -149,12 +149,12 @@ typebounds { return TYPEBOUNDS; }
 interface { return INTERFACE; }
 template { return TEMPLATE; }
 userdebug_or_eng { return USERDEBUG_OR_ENG; }
-[0-9]+\.[0-9]+(\.[0-9]+)? { yylval->string = strdup(yytext); return VERSION_NO; }
+[0-9]+\.[0-9]+(\.[0-9]+)? { return VERSION_NO; }
 [0-9]+ { yylval->string = strdup(yytext); return NUMBER; }
 [a-zA-Z\$\/][a-zA-Z0-9_\$\*\/\-]* { yylval->string = strdup(yytext); return STRING; }
 [0-9a-zA-Z\$\/][a-zA-Z0-9_\$\*\/\-]* { yylval->string = strdup(yytext); return NUM_STRING; }
-[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} { yylval->string = strdup(yytext); return IPV4; }
-([0-9A-Fa-f]{1,4})?\:([0-9A-Fa-f\:])*\:([0-9A-Fa-f]{1,4})? { yylval->string = strdup(yytext); return IPV6; }
+[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} { return IPV4; }
+([0-9A-Fa-f]{1,4})?\:([0-9A-Fa-f\:])*\:([0-9A-Fa-f]{1,4})? { return IPV6; }
 \"[a-zA-Z0-9_\.\-\:~\$]*\" { yylval->string = strdup(yytext); return QUOTED_STRING; }
 \-[\-ldbcsp][ \t] { return FILE_TYPE_SPECIFIER; }
 \( { return OPEN_PAREN; }
