@@ -150,3 +150,68 @@ void free_string_list(struct string_list *list)
 		free(to_free);
 	}
 }
+
+/* shallow string list */
+
+int str_in_shallow_sl(const char *str, const struct shallow_string_list *sl)
+{
+
+	if (!sl) {
+		return 0;
+	}
+
+	while (sl) {
+		if (0 == strcmp(sl->string, str)) {
+			return 1;
+		}
+		sl = sl->next;
+	}
+	return 0;
+}
+
+struct shallow_string_list *shallow_copy_string_list(const struct string_list *sl)
+{
+	if (!sl) {
+		return NULL;
+	}
+	struct shallow_string_list *ret = malloc(sizeof(struct shallow_string_list));
+	struct shallow_string_list *cur = ret;
+
+	while (sl) {
+		cur->string = sl->string;
+		cur->has_incorrect_space = sl->has_incorrect_space;
+
+		if (sl->next) {
+			cur->next = malloc(sizeof(struct shallow_string_list));
+		} else {
+			cur->next = NULL;
+		}
+		sl = sl->next;
+		cur = cur->next;
+	}
+	return ret;
+}
+
+struct shallow_string_list *shallow_sl_from_str(const char *string)
+{
+	struct shallow_string_list *ret = malloc(sizeof(struct shallow_string_list));
+	ret->string = string;
+	ret->next = NULL;
+	ret->has_incorrect_space = 0;
+
+	return ret;
+}
+
+void free_shallow_string_list(struct shallow_string_list *list)
+{
+	if (list == NULL) {
+		return;
+	}
+	struct shallow_string_list *cur = list;
+
+	while (cur) {
+		struct shallow_string_list *to_free = cur;
+		cur = cur->next;
+		free(to_free);
+	}
+}

@@ -143,11 +143,11 @@ const char *decl_flavor_to_string(enum decl_flavor flavor)
 	}
 }
 
-struct string_list *get_names_in_node(const struct policy_node *node)
+struct shallow_string_list *get_names_in_node(const struct policy_node *node)
 {
 
-	struct string_list *ret = NULL;
-	struct string_list *cur = NULL;
+	struct shallow_string_list *ret = NULL;
+	struct shallow_string_list *cur = NULL;
 	struct av_rule_data *av_data;
 	struct type_transition_data *tt_data;
 	struct role_transition_data *rt_data;
@@ -163,96 +163,96 @@ struct string_list *get_names_in_node(const struct policy_node *node)
 		// Since the common elements are ordered identically, we can just look
 		// at the common subset for the XAV rule
 		av_data = node->data.av_data;
-		cur = ret = copy_string_list(av_data->sources);
+		cur = ret = shallow_copy_string_list(av_data->sources);
 		if (cur) {
 			while (cur->next) {
 				cur = cur->next;
 			}
-			cur->next = copy_string_list(av_data->targets);
+			cur->next = shallow_copy_string_list(av_data->targets);
 		} else {
-			ret = copy_string_list(av_data->targets);
+			ret = shallow_copy_string_list(av_data->targets);
 		}
 		break;
 
 	case NODE_TT_RULE:
 		tt_data = node->data.tt_data;
-		cur = ret = copy_string_list(tt_data->sources);
+		cur = ret = shallow_copy_string_list(tt_data->sources);
 		if (cur) {
 			while (cur->next) {
 				cur = cur->next;
 			}
-			cur->next = copy_string_list(tt_data->targets);
+			cur->next = shallow_copy_string_list(tt_data->targets);
 		} else {
-			cur = ret = copy_string_list(tt_data->targets);
+			cur = ret = shallow_copy_string_list(tt_data->targets);
 		}
 		if (cur) {
 			while (cur->next) {
 				cur = cur->next;
 			}
-			cur->next = sl_from_str(tt_data->default_type);
+			cur->next = shallow_sl_from_str(tt_data->default_type);
 		} else {
-			cur = ret = sl_from_str(tt_data->default_type);
+			cur = ret = shallow_sl_from_str(tt_data->default_type);
 		}
 		break;
 
 	case NODE_RT_RULE:
 		rt_data = node->data.rt_data;
-		cur = ret = copy_string_list(rt_data->sources);
+		cur = ret = shallow_copy_string_list(rt_data->sources);
 		if (cur) {
 			while (cur->next) {
 				cur = cur->next;
 			}
-			cur->next = copy_string_list(rt_data->targets);
+			cur->next = shallow_copy_string_list(rt_data->targets);
 		} else {
-			cur = ret = copy_string_list(rt_data->targets);
+			cur = ret = shallow_copy_string_list(rt_data->targets);
 		}
 		if (cur) {
 			while (cur->next) {
 				cur = cur->next;
 			}
-			cur->next = sl_from_str(rt_data->default_role);
+			cur->next = shallow_sl_from_str(rt_data->default_role);
 		} else {
-			cur = ret = sl_from_str(rt_data->default_role);
+			cur = ret = shallow_sl_from_str(rt_data->default_role);
 		}
 		break;
 
 	case NODE_DECL:
 		d_data = node->data.d_data;
-		ret = sl_from_str(d_data->name);
-		ret->next = copy_string_list(d_data->attrs);
+		ret = shallow_sl_from_str(d_data->name);
+		ret->next = shallow_copy_string_list(d_data->attrs);
 		break;
 
 	case NODE_IF_CALL:
 		ifc_data = node->data.ic_data;
-		ret = copy_string_list(ifc_data->args);
+		ret = shallow_copy_string_list(ifc_data->args);
 		break;
 
 	case NODE_ROLE_ALLOW:
 		ra_data = node->data.ra_data;
-		cur = ret = copy_string_list(ra_data->from);
+		cur = ret = shallow_copy_string_list(ra_data->from);
 		while (cur->next) {
 			cur = cur->next;
 		}
-		cur->next = copy_string_list(ra_data->to);
+		cur->next = shallow_copy_string_list(ra_data->to);
 		break;
 
 	case NODE_ROLE_TYPES:
 		rtyp_data = node->data.rtyp_data;
-		ret = sl_from_str(rtyp_data->role);
-		ret->next = copy_string_list(rtyp_data->types);
+		ret = shallow_sl_from_str(rtyp_data->role);
+		ret->next = shallow_copy_string_list(rtyp_data->types);
 		break;
 
 	case NODE_TYPE_ATTRIBUTE:
 	case NODE_ROLE_ATTRIBUTE:
 		at_data = node->data.at_data;
-		ret = sl_from_str(at_data->type);
-		ret->next = copy_string_list(at_data->attrs);
+		ret = shallow_sl_from_str(at_data->type);
+		ret->next = shallow_copy_string_list(at_data->attrs);
 		break;
 
 	case NODE_ALIAS:
 	case NODE_TYPE_ALIAS:
 	case NODE_PERMISSIVE:
-		ret = sl_from_str(node->data.str);
+		ret = shallow_sl_from_str(node->data.str);
 		break;
 
 	/*
@@ -292,10 +292,7 @@ struct string_list *get_names_in_node(const struct policy_node *node)
 	cur = ret;
 	while (cur) {
 		if (cur->string[0] == '-') {
-			// memmove is safe for overlapping strings
-			// Length is strlen exactly because it doesn't copy the first
-			// character, but does copy the null terminator
-			memmove(cur->string, cur->string + 1, strlen(cur->string));
+			cur->string++;
 		}
 		cur = cur->next;
 	}
@@ -303,10 +300,10 @@ struct string_list *get_names_in_node(const struct policy_node *node)
 	return ret;
 }
 
-struct string_list *get_names_required(const struct policy_node *node)
+struct shallow_string_list *get_names_required(const struct policy_node *node)
 {
-	struct string_list *ret = NULL;
-	struct string_list *ret_cursor = NULL;
+	struct shallow_string_list *ret = NULL;
+	struct shallow_string_list *ret_cursor = NULL;
 
 	struct policy_node *cur = node->first_child;
 
