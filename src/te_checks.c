@@ -461,9 +461,9 @@ struct check_result *check_no_explicit_declaration(const struct check_data *data
 		return NULL;
 	}
 
-	struct string_list *names = get_names_in_node(node);
+	struct shallow_string_list *names = get_names_in_node(node);
 
-	const struct string_list *name = names;
+	const struct shallow_string_list *name = names;
 	/* In declarations skip the first name, which is the new declared type */
 	if (node->flavor == NODE_DECL) {
 		name = name->next;
@@ -493,14 +493,14 @@ struct check_result *check_no_explicit_declaration(const struct check_data *data
 				struct check_result *to_ret = make_check_result('W', W_ID_NO_EXPLICIT_DECL,
 										"No explicit declaration for %s from module %s.  You should access it via interface call or use a require block.",
 										name->string, mod_name);
-				free_string_list(names);
+				free_shallow_string_list(names);
 				return to_ret;
 			}
 			// Otherwise, keep checking other names in this node
 		}
 	}
 
-	free_string_list(names);
+	free_shallow_string_list(names);
 	return NULL;
 }
 

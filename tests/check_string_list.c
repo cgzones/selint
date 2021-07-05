@@ -73,6 +73,7 @@ START_TEST (test_copy_string_list) {
 	ck_assert_ptr_nonnull(sl2->next->next);
 
 	ck_assert_str_eq(sl1->next->next->string, sl2->next->next->string);
+	ck_assert_ptr_ne(sl1->next->next->string, sl2->next->next->string);
 
 	ck_assert_ptr_null(sl2->next->next->next);
 
@@ -91,9 +92,11 @@ END_TEST
 
 START_TEST (test_sl_from_str) {
 
-	struct string_list *sl = sl_from_str("test");
+	const char *input = "test";
+	struct string_list *sl = sl_from_str(input);
 	ck_assert_ptr_nonnull(sl);
-	ck_assert_str_eq("test", sl->string);
+	ck_assert_str_eq(input, sl->string);
+	ck_assert_ptr_ne(input, sl->string);
 	ck_assert_int_eq(0, sl->has_incorrect_space);
 	ck_assert_ptr_null(sl->next);
 
@@ -199,13 +202,93 @@ START_TEST (test_append_to_sl) {
 }
 END_TEST
 
+START_TEST (test_str_in_shallow_sl) {
+
+	struct shallow_string_list *sl = calloc(1, sizeof(struct shallow_string_list));
+
+	sl->string = "foo";
+	sl->next = calloc(1, sizeof(struct shallow_string_list));
+	sl->next->string = "bar";
+
+	ck_assert_int_eq(1, str_in_shallow_sl("foo", sl));
+	ck_assert_int_eq(1, str_in_shallow_sl("bar", sl));
+	ck_assert_int_eq(0, str_in_shallow_sl("baz", sl));
+
+	ck_assert_int_eq(0, str_in_shallow_sl("foo", NULL));
+
+	free_shallow_string_list(sl);
+
+}
+END_TEST
+
+START_TEST (test_shallow_sl_from_str) {
+
+	const char *input = "test";
+	struct shallow_string_list *sl = shallow_sl_from_str(input);
+	ck_assert_ptr_nonnull(sl);
+	ck_assert_str_eq(input, sl->string);
+	ck_assert_ptr_eq(input, sl->string);
+	ck_assert_int_eq(0, sl->has_incorrect_space);
+	ck_assert_ptr_null(sl->next);
+
+	free_shallow_string_list(sl);
+
+}
+END_TEST
+
+START_TEST (test_shallow_copy) {
+
+	struct string_list *cur;
+
+	struct string_list *sl1 = calloc(1, sizeof(struct string_list));
+
+	sl1->string = strdup("foo");
+	sl1->next = calloc(1, sizeof(struct string_list));
+	cur = sl1->next;
+	cur->string = strdup("bar");
+	cur->has_incorrect_space = 1;
+	cur->next = calloc(1,sizeof(struct string_list));
+	cur = cur->next;
+	cur->string = strdup("baz");
+
+	struct shallow_string_list *sl2 = shallow_copy_string_list(sl1);
+
+	ck_assert_ptr_nonnull(sl2);
+	ck_assert_ptr_ne(sl1, sl2);
+
+	ck_assert_str_eq(sl1->string, sl2->string);
+	ck_assert_ptr_eq(sl1->string, sl2->string);
+	ck_assert_int_eq(sl1->has_incorrect_space, sl2->has_incorrect_space);
+
+	ck_assert_ptr_ne(sl1->next, sl2->next);
+	ck_assert_ptr_nonnull(sl2->next);
+
+	ck_assert_str_eq(sl1->next->string, sl2->next->string);
+	ck_assert_ptr_eq(sl1->next->string, sl2->next->string);
+	ck_assert_int_eq(sl1->next->has_incorrect_space, sl2->next->has_incorrect_space);
+
+	ck_assert_ptr_ne(sl1->next->next, sl2->next->next);
+	ck_assert_ptr_nonnull(sl2->next->next);
+
+	ck_assert_str_eq(sl1->next->next->string, sl2->next->next->string);
+	ck_assert_ptr_eq(sl1->next->next->string, sl2->next->next->string);
+
+	ck_assert_ptr_null(sl2->next->next->next);
+
+	free_string_list(sl1);
+	free_shallow_string_list(sl2);
+
+}
+END_TEST
+
 static Suite *string_list_suite(void) {
 	Suite *s;
-	TCase *tc_core;
+	TCase *tc_core, *tc_shallow;
 
 	s = suite_create("String_list");
 
 	tc_core = tcase_create("Core");
+	tc_shallow = tcase_create("Shallow");
 
 	tcase_add_test(tc_core, test_str_in_sl);
 	tcase_add_test(tc_core, test_copy_string_list);
@@ -215,7 +298,13 @@ static Suite *string_list_suite(void) {
 	tcase_add_test(tc_core, test_sl_from_strs);
 	tcase_add_test(tc_core, test_concat_string_lists);
 	tcase_add_test(tc_core, test_append_to_sl);
+
+	tcase_add_test(tc_shallow, test_str_in_shallow_sl);
+	tcase_add_test(tc_shallow, test_shallow_sl_from_str);
+	tcase_add_test(tc_shallow, test_shallow_copy);
+
 	suite_add_tcase(s, tc_core);
+	suite_add_tcase(s, tc_shallow);
 
 	return s;
 }

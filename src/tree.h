@@ -241,9 +241,9 @@ int is_template_call(const struct policy_node *node);
 
 const char *get_name_if_in_template(const struct policy_node *cur);
 
-struct string_list *get_names_in_node(const struct policy_node *node);
+struct shallow_string_list *get_names_in_node(const struct policy_node *node);
 
-struct string_list *get_names_required(const struct policy_node *node);
+struct shallow_string_list *get_names_required(const struct policy_node *node);
 
 const char *decl_flavor_to_string(enum decl_flavor flavor);
 

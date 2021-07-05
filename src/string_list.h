@@ -53,4 +53,21 @@ enum selint_error append_to_sl(struct string_list *sl, const char *string);
 
 void free_string_list(struct string_list *list);
 
+
+struct shallow_string_list {
+	const char *string;
+	struct shallow_string_list *next;
+	int has_incorrect_space;
+};
+
+int str_in_shallow_sl(const char *str, const struct shallow_string_list *sl);
+
+// Return a shallow copy of sl
+struct shallow_string_list *shallow_copy_string_list(const struct string_list *sl);
+
+// Return a shallow string list with the given string as single item
+struct shallow_string_list *shallow_sl_from_str(const char *string);
+
+void free_shallow_string_list(struct shallow_string_list *list);
+
 #endif

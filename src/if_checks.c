@@ -262,7 +262,7 @@ struct check_result *check_name_used_but_not_required_in_if(const struct
 
 	const struct policy_node *cur = node;
 
-	struct string_list *names_in_current_node = get_names_in_node(node);
+	struct shallow_string_list *names_in_current_node = get_names_in_node(node);
 
 	if (!names_in_current_node) {
 		return NULL;
@@ -276,15 +276,15 @@ struct check_result *check_name_used_but_not_required_in_if(const struct
 	}
 
 	if (!cur) {
-		free_string_list(names_in_current_node);
+		free_shallow_string_list(names_in_current_node);
 		return NULL;
 	}
 	// In a template or interface, and cur is a pointer to the definition node
 
 	cur = cur->first_child;
 
-	struct string_list *names_required = NULL;
-	struct string_list *names_required_tail = NULL;
+	struct shallow_string_list *names_required = NULL;
+	struct shallow_string_list *names_required_tail = NULL;
 
 	while (cur && cur != node) {
 	       if (cur->flavor == NODE_GEN_REQ
@@ -305,7 +305,7 @@ struct check_result *check_name_used_but_not_required_in_if(const struct
 		                     // for example in an ifdef
 	}
 
-	const struct string_list *name_node = names_in_current_node;
+	const struct shallow_string_list *name_node = names_in_current_node;
 	/* In declarations skip the first name, which is the new declared type */
 	if (node->flavor == NODE_DECL) {
 		name_node = name_node->next;
@@ -313,7 +313,7 @@ struct check_result *check_name_used_but_not_required_in_if(const struct
 	const char *flavor = NULL;
 
 	while (name_node) {
-		if (!str_in_sl(name_node->string, names_required)) {
+		if (!str_in_shallow_sl(name_node->string, names_required)) {
 			if (0 == strcmp(name_node->string, "system_r")) {
 				// system_r is required by default in all modules
 				// so that is an exception that shouldn't be warned
@@ -345,15 +345,15 @@ struct check_result *check_name_used_but_not_required_in_if(const struct
 			struct check_result *res =
 				make_check_result('W', W_ID_NO_REQ, NOT_REQ_MESSAGE,
 				                  flavor, name_node->string);
-			free_string_list(names_in_current_node);
-			free_string_list(names_required);
+			free_shallow_string_list(names_in_current_node);
+			free_shallow_string_list(names_required);
 			return res;
 		}
 		name_node = name_node->next;
 	}
 
-	free_string_list(names_in_current_node);
-	free_string_list(names_required);
+	free_shallow_string_list(names_in_current_node);
+	free_shallow_string_list(names_required);
 
 	return NULL;
 }
@@ -405,7 +405,7 @@ struct check_result *check_name_required_but_not_used_in_if(const struct
 		return NULL;
 	}
 
-	struct string_list *names_to_check = get_names_in_node(node);
+	struct shallow_string_list *names_to_check = get_names_in_node(node);
 	if (!names_to_check) {
 		// This should never happen
 		return alloc_internal_error(
@@ -416,13 +416,13 @@ struct check_result *check_name_required_but_not_used_in_if(const struct
 
 	cur = cur->next;
 
-	struct string_list *sl_end = NULL;
-	struct string_list *sl_head = NULL;
+	struct shallow_string_list *sl_end = NULL;
+	struct shallow_string_list *sl_head = NULL;
 
 	int depth = 0;
 
 	while (cur) {
-		struct string_list *names_used = get_names_in_node(cur);
+		struct shallow_string_list *names_used = get_names_in_node(cur);
 		if (names_used) {
 			if (!sl_head) {
 				sl_head = sl_end = names_used;
@@ -452,12 +452,12 @@ struct check_result *check_name_required_but_not_used_in_if(const struct
 		}
 	}
 
-	const struct string_list *name_node = names_to_check;
+	const struct shallow_string_list *name_node = names_to_check;
 
 	struct check_result *res = NULL;
 
 	while (name_node) {
-		if (!str_in_sl(name_node->string, sl_head)) {
+		if (!str_in_shallow_sl(name_node->string, sl_head)) {
 			res = make_check_result('W',
 			                        W_ID_UNUSED_REQ,
 			                        "%s %s is listed in require block but not used in interface",
@@ -468,8 +468,8 @@ struct check_result *check_name_required_but_not_used_in_if(const struct
 		name_node = name_node->next;
 	}
 
-	free_string_list(sl_head);
-	free_string_list(names_to_check);
+	free_shallow_string_list(sl_head);
+	free_shallow_string_list(names_to_check);
 	return res;
 }
 
